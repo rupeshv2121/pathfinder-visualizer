@@ -2,7 +2,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { AnimatePresence, motion } from 'framer-motion';
 
 
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 const Chatbot = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -12,7 +12,7 @@ const Chatbot = () => {
     const messagesEndRef = useRef(null);
     const inputRef = useRef(null);
 
-    const API_KEY = import.meta.process.API_KEY;
+    const API_KEY = process.env.REACT_APP_GEMINI_API_KEY;;
     const genAI = new GoogleGenerativeAI(API_KEY);
 
     // Initialize with welcome message
