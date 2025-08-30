@@ -2,21 +2,20 @@ import { AnimatePresence, motion } from 'framer-motion';
 import React, { useEffect } from 'react';
 
 const VictoryPopup = ({ isOpen, onClose, stats, totalSteps }) => {
-    if (!isOpen) return null;
-
-    // Handle escape key press
     useEffect(() => {
+        if (!isOpen) return; // ✅ check inside effect, not outside
+
         const handleEscape = (e) => {
             if (e.key === 'Escape') {
                 onClose();
             }
         };
 
-        if (isOpen) {
-            document.addEventListener('keydown', handleEscape);
-            return () => document.removeEventListener('keydown', handleEscape);
-        }
+        document.addEventListener('keydown', handleEscape);
+        return () => document.removeEventListener('keydown', handleEscape);
     }, [isOpen, onClose]);
+
+    if (!isOpen) return null; // ✅ safe to return after hooks
 
     return (
         <AnimatePresence>
