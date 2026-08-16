@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import CellEditor from './CellEditor';
 import MovingAgent from './MovingAgent';
 
@@ -28,9 +28,9 @@ const Grid = ({
       return 'bg-yellow-400 text-black'; // Currently being processed
     }
 
-    if (cellState.visited) {
-      return 'bg-blue-300 text-black'; // Visited
-    }
+    // if (cellState.visited) {
+    //   return 'bg-blue-300 text-black'; // Visited
+    // }
 
     return 'bg-white text-black border-gray-300'; // Default
   };
@@ -60,9 +60,8 @@ const Grid = ({
       newValue = currentValue + 1;
     }
 
-    // Don't allow editing start and end positions
-    if ((rowIndex === 0 && colIndex === 0) ||
-      (rowIndex === grid.length - 1 && colIndex === grid[0].length - 1)) {
+    // Don't allow editing the end position (target)
+    if (rowIndex === 0 && colIndex === 0) {
       return;
     }
 
@@ -72,9 +71,8 @@ const Grid = ({
   const handleCellDoubleClick = (rowIndex, colIndex) => {
     if (simulationState !== 'idle') return;
 
-    // Don't allow editing start and end positions
-    if ((rowIndex === 0 && colIndex === 0) ||
-      (rowIndex === grid.length - 1 && colIndex === grid[0].length - 1)) {
+    // Don't allow editing the end position (target)
+    if (rowIndex === 0 && colIndex === 0) {
       return;
     }
 
@@ -110,8 +108,7 @@ const Grid = ({
           {grid.map((row, rowIndex) =>
             row.map((value, colIndex) => {
               const cellState = cellStates[rowIndex][colIndex];
-              const isStartOrEnd = (rowIndex === 0 && colIndex === 0) ||
-                (rowIndex === grid.length - 1 && colIndex === grid[0].length - 1);
+              const isEndPosition = (rowIndex === 0 && colIndex === 0);
 
               return (
                 <motion.div
@@ -119,14 +116,14 @@ const Grid = ({
                   className={`
                     ${cellSize} border-2 rounded-lg flex items-center justify-center font-bold cursor-pointer
                     ${getCellColor(value, cellState)}
-                    ${isStartOrEnd ? 'cursor-not-allowed' : 'cursor-pointer hover:shadow-lg'}
+                    ${isEndPosition ? 'cursor-not-allowed' : 'cursor-pointer hover:shadow-lg'}
                     transition-all duration-300
                   `}
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ delay: (rowIndex * grid.length + colIndex) * 0.05 }}
-                  whileHover={{ scale: isStartOrEnd ? 1 : 1.05 }}
-                  whileTap={{ scale: isStartOrEnd ? 1 : 0.95 }}
+                  whileHover={{ scale: isEndPosition ? 1 : 1.05 }}
+                  whileTap={{ scale: isEndPosition ? 1 : 0.95 }}
                   onClick={() => handleCellClick(rowIndex, colIndex)}
                   onDoubleClick={() => handleCellDoubleClick(rowIndex, colIndex)}
                 >
@@ -158,14 +155,6 @@ const Grid = ({
 
       <div className="mt-6 text-center">
         <div className="inline-flex items-center space-x-4 text-sm text-gray-600 mb-4">
-          <div className="flex items-center space-x-2">
-            <div className="w-4 h-4 bg-white border-2 border-gray-300 rounded"></div>
-            <span>Unvisited</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-4 h-4 bg-blue-300 rounded"></div>
-            <span>Visited</span>
-          </div>
           <div className="flex items-center space-x-2">
             <div className="w-4 h-4 bg-yellow-400 rounded"></div>
             <span>Current</span>
@@ -210,7 +199,7 @@ const Grid = ({
           <div className="space-y-1">
             <div>• <strong>Click</strong> to cycle through values: 0 → 1 → -1 → ∞</div>
             <div>• <strong>Double-click</strong> to enter custom values</div>
-            <div>• Start and end positions cannot be edited</div>
+            <div>• Only the target position (0,0) cannot be edited</div>
           </div>
         </div>
       </div>

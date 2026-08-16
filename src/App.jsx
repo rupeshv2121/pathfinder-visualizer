@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Chatbot from './components/Chatbot';
 import Controls from './components/Controls';
 import Grid from './components/Grid';
@@ -14,14 +14,14 @@ const App = () => {
   const [gridRows, setGridRows] = useState(3);
   const [gridCols, setGridCols] = useState(3);
   const [grid, setGrid] = useState([
-    [5, 1, Infinity],
-    [Infinity, -2, 4],
-    [3, 2, 1]
+    [0, 0, 0],
+    [0, 0, 0],
+    [0, 0, 0]
   ]);
   const [cellStates, setCellStates] = useState([
-    [{ visited: false, current: false, path: false }, { visited: false, current: false, path: false }, { visited: false, current: false, path: false }],
-    [{ visited: false, current: false, path: false }, { visited: false, current: false, path: false }, { visited: false, current: false, path: false }],
-    [{ visited: false, current: false, path: false }, { visited: false, current: false, path: false }, { visited: false, current: false, path: false }]
+    [{ current: false, path: false }, { current: false, path: false }, { current: false, path: false }],
+    [{ current: false, path: false }, { current: false, path: false }, { current: false, path: false }],
+    [{ current: false, path: false }, { current: false, path: false }, { current: false, path: false }]
   ]);
   const [queue, setQueue] = useState([]);
   const [stats, setStats] = useState({ minSteps: 0, maxVal: 0 });
@@ -30,7 +30,7 @@ const App = () => {
   const [showVictoryPopup, setShowVictoryPopup] = useState(false);
 
   // Agent movement state
-  const [agentPosition, setAgentPosition] = useState({ row: gridRows - 1, col: gridCols - 1 });
+  const [agentPosition, setAgentPosition] = useState({ row: gridRows, col: gridCols }); // Start at bottom-right for 3x3 grid
   const [agentDirection, setAgentDirection] = useState(null);
   const [isAgentMoving, setIsAgentMoving] = useState(false);
 
@@ -38,14 +38,14 @@ const App = () => {
     setSimulationState('running');
     setCurrentStep(0);
 
-    // Reset agent position to start
+    // Reset agent position to start (bottom-right corner)
     setAgentPosition({ row: gridRows - 1, col: gridCols - 1 });
     setAgentDirection(null);
     setIsAgentMoving(false);
 
     // Reset grid states
     const newCellStates = grid.map(row =>
-      row.map(() => ({ visited: false, current: false, path: false }))
+      row.map(() => ({ current: false, path: false }))
     );
     setCellStates(newCellStates);
 
@@ -104,7 +104,7 @@ const App = () => {
     setSimulationState('idle');
     setCurrentStep(0);
     setCellStates(grid.map(row =>
-      row.map(() => ({ visited: false, current: false, path: false }))
+      row.map(() => ({ current: false, path: false }))
     ));
     setQueue([]);
     setStats({ minSteps: 0, maxVal: 0 });
@@ -151,7 +151,7 @@ const App = () => {
 
     // Reset cell states
     const newCellStates = Array(newRows).fill(null).map(() =>
-      Array(newCols).fill(null).map(() => ({ visited: false, current: false, path: false }))
+      Array(newCols).fill(null).map(() => ({ current: false, path: false }))
     );
     setCellStates(newCellStates);
 
@@ -159,6 +159,11 @@ const App = () => {
     setQueue([]);
     setStats({ minSteps: 0, maxVal: 0 });
     setSimulationSteps([]);
+
+    // Reset agent position to new grid's start position
+    setAgentPosition({ row: newRows - 1, col: newCols - 1 });
+    setAgentDirection(null);
+    setIsAgentMoving(false);
   };
 
   const updateGridCell = (rowIndex, colIndex, value) => {
@@ -184,6 +189,11 @@ const App = () => {
       return () => clearInterval(interval);
     }
   }, [simulationState, currentStep, animationSpeed, simulationSteps.length, nextStep]);
+
+  // Update agent position when grid size changes
+  useEffect(() => {
+    setAgentPosition({ row: gridRows - 1, col: gridCols - 1 });
+  }, [gridRows, gridCols]);
 
   return (
     <div className="min-h-screen bg-gray-100 ">
